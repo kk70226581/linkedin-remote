@@ -1,0 +1,31 @@
+name: Windows Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+
+      - name: Build application
+        run: |
+          cargo build --release
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: linkedin-remote-windows
+          path: target/release/*.exe
