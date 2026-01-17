@@ -12,17 +12,19 @@ jobs:
 
     env:
       VCPKG_ROOT: C:\vcpkg
-      VCPKG_DEFAULT_TRIPLET: x64-windows
+      VCPKG_FEATURE_FLAGS: manifests
+      CARGO_TERM_COLOR: always
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          profile: minimal
           override: true
 
       - name: Install vcpkg
@@ -30,14 +32,15 @@ jobs:
           git clone https://github.com/microsoft/vcpkg C:\vcpkg
           C:\vcpkg\bootstrap-vcpkg.bat
 
-      - name: Install required vcpkg packages
+      - name: Configure vcpkg
         run: |
-          C:\vcpkg\vcpkg install opus:x64-windows
+          echo "VCPKG_ROOT=C:\vcpkg" >> $env:GITHUB_ENV
 
-      - name: Build application
-        run: cargo build --release
+      - name: Build RustDesk (Windows)
+        run: |
+          cargo build --release
 
-      - name: Upload Windows EXE
+      - name: Upload EXE
         uses: actions/upload-artifact@v4
         with:
           name: linkedin-remote-windows
